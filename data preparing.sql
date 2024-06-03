@@ -78,6 +78,100 @@ select *
 from layoffs_copy2
 where industry like 'Crypto%';
 
+select distinct country, trim(trailing '.' from country) -- to remove smth from the ending of a word
+from layoffs_copy2
+order by 1;
+
+update layoffs_copy2
+set country= trim(trailing '.' from country)
+where industry like 'United States%';
+
+-- for time series visualizations we need to standardize the date col
+select `date`,
+STR_TO_DATE(`date`, '%m/%d/%Y')
+from layoffs_copy2;
+
+update layoffs_copy2
+set `date`=STR_TO_DATE(`date`, '%m/%d/%Y');
+
+select `date`
+from layoffs_copy2;
+
+alter table layoffs_copy2
+modify column `date` date;
+
+-- now blank/null values handling
+
+select * 
+from layoffs_copy2
+where total_laid_off is null
+and percentage_laid_off is null;
+
+select *
+from layoffs_copy2
+where industry is null 
+or industry='';
+
+select *
+from layoffs_copy2
+where company='Airbnb';
+
+select t1.industry,t2.industry
+from layoffs_copy2 t1
+join layoffs_copy2 t2
+	on t1.company = t2.company
+    -- and t1.location = t2.location
+where (t1.industry is null or t1.industry='')
+and t2.industry is not null;
+
+update layoffs_copy2
+set industry = NULL
+where industry = '';
+
+update layoffs_copy2 t1
+join layoffs_copy2 t2
+	on t1.company = t2.company
+set t1.industry =t2.industry
+where t1.industry is null 
+and t2.industry is not null;
+
+delete 
+from layoffs_copy2
+where total_laid_off is null 
+and percentage_laid_off is null;
+
+select * 
+from layoffs_copy2
+where total_laid_off is null 
+and percentage_laid_off is null;
+
+alter table layoffs_copy2
+drop column row_num;
+
+select * 
+from layoffs_copy2;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
